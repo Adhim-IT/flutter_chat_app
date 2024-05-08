@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/consts.dart';
+import 'package:flutter_chat_app/services/auth_service.dart';
 import 'package:flutter_chat_app/services/media_service.dart';
+import 'package:flutter_chat_app/services/navigation_service.dart';
+import 'package:flutter_chat_app/widgets/custom_form_field.dart';
 import 'package:get_it/get_it.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -14,12 +17,19 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final GetIt _getIt = GetIt.instance;
+  final GlobalKey<FormState> _registerFormKey = GlobalKey();
+  late AuthServcie _authServcie;
   late MediaService _mediaService;
+  late NavigationService _navigationService;
+  String? email, password, name;
   File? selectedImage;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
     _mediaService = _getIt.get<MediaService>();
+    _navigationService = _getIt.get<NavigationService>();
+    _authServcie = _getIt.get<AuthServcie>();
   }
 
   Widget build(BuildContext context) {
@@ -36,7 +46,13 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           children: [
             _headerText(),
-            _registerForm(),
+            if (!isLoading) _registerForm(),
+            if (!isLoading) _loginAnAccountLink(),
+            if (!isLoading)
+              const Expanded(
+                  child: Center(
+                child: CircularProgressIndicator(),
+              ))
           ],
         ),
       ),
@@ -48,8 +64,8 @@ class _RegisterPageState extends State<RegisterPage> {
       width: MediaQuery.sizeOf(context).width,
       child: const Column(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             "Let's get started!",
@@ -78,11 +94,50 @@ class _RegisterPageState extends State<RegisterPage> {
         vertical: MediaQuery.sizeOf(context).height * 0.05,
       ),
       child: Form(
+          key: _registerFormKey,
           child: Column(
-        children: [
-          _pfpSelectionField(),
-        ],
-      )),
+            children: [
+              _pfpSelectionField(),
+              CustomFormField(
+                hintText: "Email",
+                height: MediaQuery.sizeOf(context).height * 0.1,
+                validationRegEx: EMAIL_VALIDATION_REGEX,
+                onSaved: (value) {
+                  setState(
+                    () {
+                      email = value;
+                    },
+                  );
+                },
+              ),
+              CustomFormField(
+                hintText: "Name",
+                height: MediaQuery.sizeOf(context).height * 0.1,
+                validationRegEx: NAME_VALIDATION_REGEX,
+                onSaved: (value) {
+                  setState(
+                    () {
+                      name = value;
+                    },
+                  );
+                },
+              ),
+              CustomFormField(
+                hintText: "Password",
+                height: MediaQuery.sizeOf(context).height * 0.1,
+                validationRegEx: EMAIL_VALIDATION_REGEX,
+                obscureText: true,
+                onSaved: (value) {
+                  setState(
+                    () {
+                      password = value;
+                    },
+                  );
+                },
+              ),
+              _registerButton()
+            ],
+          )),
     );
   }
 
@@ -101,6 +156,60 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundImage: selectedImage != null
             ? FileImage(selectedImage!)
             : NetworkImage(PLACEHOLDER_PFP) as ImageProvider,
+      ),
+    );
+  }
+
+  Widget _registerButton() {
+    return SizedBox(
+        width: MediaQuery.sizeOf(context).width,
+        child: MaterialButton(
+            color: Theme.of(context).colorScheme.primary,
+            onPressed: () async {
+              setState(() {
+                isLoading = true;
+              });
+              try {
+                if ((_registerFormKey.currentState?.validate() ?? false) &&
+                    selectedImage != null) {
+                  _registerFormKey.currentState?.save();
+                  bool result = await _authServcie.signup(email!, password!);
+                  if (result) {}
+                  print(result);
+                }
+              } catch (e) {
+                print(e);
+              }
+              setState(() {
+                isLoading = false;
+              });
+            },
+            child: const Text(
+              "Register",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            )));
+  }
+
+  Widget _loginAnAccountLink() {
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          const Text("Aleready have  an account?"),
+          GestureDetector(
+            onTap: () {
+              _navigationService.goBack();
+            },
+            child: const Text(
+              " Sign In",
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+          )
+        ],
       ),
     );
   }
