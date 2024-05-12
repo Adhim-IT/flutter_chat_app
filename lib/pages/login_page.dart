@@ -9,7 +9,7 @@ import 'package:flutter_chat_app/widgets/custom_form_field.dart';
 import 'package:get_it/get_it.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   late AlertService _alertService;
 
   String? email, password;
+  bool showPassword = false;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, 
       resizeToAvoidBottomInset: false,
       body: _buildUI(),
     );
@@ -54,25 +56,30 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _headerText() {
     return SizedBox(
-      width: MediaQuery.sizeOf(context).width,
+      width: MediaQuery.of(context).size.width,
       child: const Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 20), // Tambahkan jarak di bagian atas
           Text(
             "Hai, Welcome Back!",
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+              fontSize: 24, // Ubah ukuran teks
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppies',
+              color: Colors.black87, // Ubah warna teks
             ),
           ),
+          SizedBox(height: 10), // Tambahkan jarak antara elemen
           Text(
             "Hello again, you've been missed!",
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 16, // Ubah ukuran teks
               fontWeight: FontWeight.w500,
-              color: Colors.grey,
+              color: Colors.grey, // Ubah warna teks
+              fontFamily: 'Poppies',
             ),
           )
         ],
@@ -82,10 +89,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _loginForm() {
     return Container(
-      height: MediaQuery.sizeOf(context).height * 0.40,
-      margin: EdgeInsets.symmetric(
-        vertical: MediaQuery.sizeOf(context).height * 0.05,
-      ),
+      padding: const  EdgeInsets.symmetric(vertical: 20), 
+      height: MediaQuery.of(context).size.height * 0.50, 
       child: Form(
         key: _loginFormKey,
         child: Column(
@@ -93,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CustomFormField(
-              height: MediaQuery.sizeOf(context).height * 0.1,
+              height: MediaQuery.of(context).size.height * 0.1,
               hintText: "Email",
               validationRegEx: EMAIL_VALIDATION_REGEX,
               onSaved: (value) {
@@ -103,15 +108,25 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
             CustomFormField(
-              height: MediaQuery.sizeOf(context).height * 0.1,
+              height: MediaQuery.of(context).size.height * 0.1,
               hintText: "Password",
               validationRegEx: PASSWORD_VALIDATION_REGEX,
-              obscureText: true,
+              obscureText: !showPassword,
               onSaved: (value) {
                 setState(() {
                   password = value;
                 });
               },
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    showPassword = !showPassword;
+                  });
+                },
+                icon: Icon(
+                  showPassword ? Icons.visibility : Icons.visibility_off,
+                ),
+              ),
             ),
             _loginButton()
           ],
@@ -121,9 +136,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _loginButton() {
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width,
-      child: MaterialButton(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: MaterialButton(
           onPressed: () async {
             if (_loginFormKey.currentState?.validate() ?? false) {
               _loginFormKey.currentState?.save();
@@ -139,12 +156,20 @@ class _LoginPageState extends State<LoginPage> {
             }
           },
           color: Theme.of(context).colorScheme.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: const Text(
             "Login",
             style: TextStyle(
               color: Colors.white,
+              fontFamily: 'Poppies',
+              fontSize: 16.0,
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 
@@ -155,14 +180,16 @@ class _LoginPageState extends State<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.max,
         children: [
-          const Text("Don't have an account?"),
+          const Text("Don't have an account?",
+              style: TextStyle(fontFamily: 'Poppies')),
           GestureDetector(
             onTap: () {
               _navigationService.pushNamed("/register");
             },
             child: const Text(
               " Sign Up",
-              style: TextStyle(fontWeight: FontWeight.w800),
+              style:
+                  TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Poppies'),
             ),
           )
         ],
