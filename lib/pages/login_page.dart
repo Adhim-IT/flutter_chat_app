@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_app/consts.dart';
 import 'package:flutter_chat_app/services/alert_service.dart';
 import 'package:flutter_chat_app/services/auth_service.dart';
@@ -19,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final GetIt _getIt = GetIt.instance;
   final GlobalKey<FormState> _loginFormKey = GlobalKey();
 
-  late AuthServcie _authServcie;
+  late AuthServcie _authService;
   late NavigationService _navigationService;
   late AlertService _alertService;
 
@@ -29,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _authServcie = _getIt<AuthServcie>();
+    _authService = _getIt<AuthServcie>();
     _navigationService = _getIt.get<NavigationService>();
     _alertService = _getIt.get<AlertService>();
   }
@@ -37,7 +36,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, 
       resizeToAvoidBottomInset: false,
       body: _buildUI(),
     );
@@ -48,7 +46,11 @@ class _LoginPageState extends State<LoginPage> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
         child: Column(
-          children: [_headerText(), _loginForm(), _createAnAccountLink()],
+          children: [
+            _headerText(),
+            _loginForm(),
+            _createAnAccountLink(),
+          ],
         ),
       ),
     );
@@ -59,27 +61,25 @@ class _LoginPageState extends State<LoginPage> {
       width: MediaQuery.of(context).size.width,
       child: const Column(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 20), // Tambahkan jarak di bagian atas
           Text(
             "Hai, Welcome Back!",
             style: TextStyle(
-              fontSize: 24, // Ubah ukuran teks
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              fontFamily: 'Poppies',
-              color: Colors.black87, // Ubah warna teks
+              fontFamily: 'Poppins',
+              color: Colors.black87,
             ),
           ),
-          SizedBox(height: 10), // Tambahkan jarak antara elemen
           Text(
             "Hello again, you've been missed!",
             style: TextStyle(
-              fontSize: 16, // Ubah ukuran teks
+              fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.grey, // Ubah warna teks
-              fontFamily: 'Poppies',
+              color: Colors.grey,
+              fontFamily: 'Poppins',
             ),
           )
         ],
@@ -89,8 +89,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _loginForm() {
     return Container(
-      padding: const  EdgeInsets.symmetric(vertical: 20), 
-      height: MediaQuery.of(context).size.height * 0.50, 
+      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      height: MediaQuery.of(context).size.height * 0.50,
       child: Form(
         key: _loginFormKey,
         child: Column(
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: () async {
             if (_loginFormKey.currentState?.validate() ?? false) {
               _loginFormKey.currentState?.save();
-              bool result = await _authServcie.login(email!, password!);
+              bool result = await _authService.login(email!, password!);
               if (result) {
                 _navigationService.pushReplacementNamed("/home");
               } else {
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
             "Login",
             style: TextStyle(
               color: Colors.white,
-              fontFamily: 'Poppies',
+              fontFamily: 'Poppins',
               fontSize: 16.0,
             ),
           ),
@@ -181,15 +181,15 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           const Text("Don't have an account?",
-              style: TextStyle(fontFamily: 'Poppies')),
+              style: TextStyle(fontFamily: 'Poppins')),
           GestureDetector(
             onTap: () {
               _navigationService.pushNamed("/register");
             },
             child: const Text(
               " Sign Up",
-              style:
-                  TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Poppies'),
+              style: TextStyle(
+                  fontWeight: FontWeight.w800, fontFamily: 'Poppins'),
             ),
           )
         ],

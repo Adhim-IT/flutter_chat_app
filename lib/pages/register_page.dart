@@ -161,7 +161,10 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _pfpSelectionField() {
     return GestureDetector(
       onTap: () async {
-        File? file = await _mediaService.getImageFromGallery();
+        File? file = await _mediaService.getImageFromGallery(
+          maxWidth: 500,
+          maxHeight: 500, 
+        );
         if (file != null) {
           setState(() {
             selectedImage = file;
@@ -178,66 +181,73 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _registerButton() {
-  return SizedBox(
-    width: MediaQuery.of(context).size.width,
-    child: MaterialButton(
-      color: Theme.of(context).colorScheme.primary,
-      onPressed: () async {
-        setState(() {
-          isLoading = true;
-        });
-        try {
-          if ((_registerFormKey.currentState?.validate() ?? false) &&
-              selectedImage != null) {
-            _registerFormKey.currentState?.save();
-            bool result = await _authServcie.signup(email!, password!);
-            if (result) {
-              String? pfpURL = await _storageService.uploadUserPfp(
-                file: selectedImage!,
-                uid: _authServcie.user!.uid,
-              );
-              if (pfpURL != null) {
-                await _databaseService.createUserProfile(
-                  userProfile: UserProfile(
-                      uid: _authServcie.user!.uid,
-                      name: name,
-                      pfpURL: pfpURL),
-                );
-                _alertService.showToast(
-                    text: "User registered successfully", icon: Icons.check);
-                _navigationService.goBack();
-                _navigationService.pushReplacementNamed("/home");
-              } else {
-                throw Exception("Unable to upload profile picture");
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: MaterialButton(
+          onPressed: () async {
+            setState(() {
+              isLoading = true;
+            });
+            try {
+              if ((_registerFormKey.currentState?.validate() ?? false) &&
+                  selectedImage != null) {
+                _registerFormKey.currentState?.save();
+                bool result = await _authServcie.signup(email!, password!);
+                if (result) {
+                  String? pfpURL = await _storageService.uploadUserPfp(
+                    file: selectedImage!,
+                    uid: _authServcie.user!.uid,
+                  );
+                  if (pfpURL != null) {
+                    await _databaseService.createUserProfile(
+                      userProfile: UserProfile(
+                        uid: _authServcie.user!.uid,
+                        name: name,
+                        pfpURL: pfpURL,
+                      ),
+                    );
+                    _alertService.showToast(
+                        text: "User registered successfully",
+                        icon: Icons.check);
+                    _navigationService.goBack();
+                    _navigationService.pushReplacementNamed("/home");
+                  } else {
+                    throw Exception("Unable to upload profile picture");
+                  }
+                } else {
+                  throw Exception("Unable to register user");
+                }
               }
-            } else {
-              throw Exception("Unable to register user");
+            } catch (e) {
+              print(e);
+              _alertService.showToast(
+                text: "Failed to register, try again",
+                icon: Icons.error,
+              );
             }
-          }
-        } catch (e) {
-          print(e);
-          _alertService.showToast(
-            text: "Failed to register, try again",
-            icon: Icons.error,
-          );
-        }
-        setState(() {
-          isLoading = false;
-        });
-      },
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0), // Set borderRadius
-      ),
-      child: const Text(
-        "Register",
-        style: TextStyle(
-          color: Colors.white,
+            setState(() {
+              isLoading = false;
+            });
+          },
+          color: Theme.of(context).colorScheme.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          child: const Text(
+            "Register",
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Poppins',
+              fontSize: 16.0,
+            ),
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _loginAnAccountLink() {
     return Expanded(

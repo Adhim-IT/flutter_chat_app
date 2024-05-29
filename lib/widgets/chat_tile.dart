@@ -4,8 +4,14 @@ import 'package:flutter_chat_app/models/user_profile.dart';
 class ChatTile extends StatelessWidget {
   final UserProfile userProfile;
   final Function onTap;
+  final Function onProfileTap;
 
-  const ChatTile({super.key, required this.userProfile, required this.onTap});
+  const ChatTile({
+    Key? key,
+    required this.userProfile,
+    required this.onTap,
+    required this.onProfileTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +20,14 @@ class ChatTile extends StatelessWidget {
         onTap();
       },
       dense: false,
-      leading: CircleAvatar(
-        backgroundImage: NetworkImage(
-          userProfile.pfpURL!,
+      leading: GestureDetector(
+        onTap: () {
+          onProfileTap();
+        },
+        child: CircleAvatar(
+          backgroundImage: NetworkImage(
+            userProfile.pfpURL!,
+          ),
         ),
       ),
       title: Text(userProfile.name!),
